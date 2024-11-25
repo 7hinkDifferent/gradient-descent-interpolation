@@ -125,8 +125,7 @@ def cifar10_test(model, logging_dir, dataset_dir, optimizer_class, criterion_cla
     best_epoch = 0
     best_loss = 1e10
     params = model.state_dict()
-    # TODO: test acc always 0.1???
-    for i in tqdm(range(epoch)):
+    for i in range(epoch):
         print("epoch {}".format(i))
         train_loss = train_epoch(model, dataloader_train, criterion, optimizer, device)
         test_loss, test_acc = test_epoch(model, dataloader_test, criterion, device)
@@ -166,14 +165,15 @@ def arg_parse():
     parser.add_argument("--activation", choices=["relu", "sigmoid", "tanh", "equidistant", "adaptive"], default="sigmoid")
     parser.add_argument("--path", type=str, default="./logs/exp/model.pth")
     parser.add_argument("--N", type=int, default=10)
-    parser.add_argument("--order", type=int, default=2)
+    parser.add_argument("--degree", type=int, default=2)
     parser.add_argument("--bl", type=float, default=-10)
     parser.add_argument("--br", type=float, default=10)
     parser.add_argument("--sl", type=float, default=0)
     parser.add_argument("--sr", type=float, default=0)
     parser.add_argument("--min_val", type=float, default=None)
     parser.add_argument("--max_val", type=float, default=None)
-    parser.add_argument("--freeze", type=bool, default=True)
+    # TODO: currently training is not supported
+    parser.add_argument("--freeze", action="store_true", default=False)
     # image-test
     parser.add_argument("--image-test", action="store_true", default=False)
     parser.add_argument("--dataset", choices=["cifar10"], default="cifar10") # TODO: add more dataset
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         "activation": args.activation,
         "path": args.path,
         "N": args.N,
-        "order": args.order,
+        "degree": args.degree,
         "bl": args.bl,
         "br": args.br,
         "sl": args.sl,
@@ -225,6 +225,7 @@ if __name__ == "__main__":
         "resnet18": ResNet18,
     }
     model = model_class[args.model](**activation_fn_config)
+    model.to(args.device)
     cifar10_test(model, logging_dir=logging_dir, dataset_dir=dataset_dir, 
                  optimizer_class=optimizer_class, criterion_class=criterion_class, 
                  lr=args.lr, epoch=args.epoch, batch_size=args.batch_size, device=args.device)

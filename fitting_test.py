@@ -121,7 +121,6 @@ def parse_args():
     parser.add_argument("--sr", type=float, default=0)
     parser.add_argument("--min_val", type=float, default=None)
     parser.add_argument("--max_val", type=float, default=None)
-    parser.add_argument("--freeze", type=bool, default=True)
     # fit-test
     parser.add_argument("--fit-test", action="store_true", default=False)
     parser.add_argument("--objective_func", choices=["sigmoid", "tanh", "relu"], default="sigmoid")
@@ -141,8 +140,9 @@ if __name__ == "__main__":
     logging_dir = os.path.join(args.logging_root, args.exp_name)
     interpolation = registry.interpolator.from_pretrained(name=args.model, path=args.path, degree=args.degree, N=args.N, 
                                                       bl=args.bl, br=args.br, sl=args.sl, sr=args.sr, 
-                                                      min_val=args.min_val, max_val=args.max_val, logging_dir=logging_dir)
+                                                      min_val=args.min_val, max_val=args.max_val, 
+                                                      logging_dir=logging_dir, device=args.device)
     interpolation.to(args.device)
-    objective_func = registry.objective_function.build_func[args.objective_func]
+    objective_func = registry.objective_function.build_func(args.objective_func)
     test_fitting(interpolation, objective_func=objective_func, logging_dir=logging_dir, 
                  xmin=args.xmin, xmax=args.xmax, step=args.step, device=args.device)

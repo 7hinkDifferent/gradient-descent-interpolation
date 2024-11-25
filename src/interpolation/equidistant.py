@@ -40,10 +40,9 @@ class EquidistantIntervalInterpolation(PolynomialInterpolation):
         output = maskbl * ybl + maskbr * ybr + torch.sum(maskother * yp, -1)
         return self.post_process(output.reshape(shape))
 
-    # def to(self, *args, **kwargs):
-    #     print("ratio")
-    #     super(RatioInterval, self).to(*args, **kwargs)
-    #     self.sample_points = self.sample_points.to(*args, **kwargs)
+    def to(self, *args, **kwargs):
+        super(EquidistantIntervalInterpolation, self).to(*args, **kwargs)
+        self.sample_points = self.sample_points.to(*args, **kwargs)
 
     def update(self):
         # update sample points

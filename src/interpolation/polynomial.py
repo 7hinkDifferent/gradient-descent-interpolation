@@ -181,7 +181,7 @@ class PolynomialInterpolation(torch.nn.Module):
         images = []
     
         for i in tqdm(range(epoch)):
-            data = generator(batch)
+            data = generator(batch).to(self.device)
             output = self(data)
             label = objective_func(data)
             loss = criterion(output, label)
@@ -208,20 +208,20 @@ class PolynomialInterpolation(torch.nn.Module):
         ax.clear()
 
         plt.title("input distribution")
-        plt.hist(self.distribution.detach().numpy(), bins=100)
+        plt.hist(self.distribution.cpu().detach().numpy(), bins=100)
         plt.savefig(os.path.join(self.logging_dir, "input_distribution.png"))
         plt.clf()
 
     def test(self, objective_func, xmin=-10, xmax=10, step=0.001):
         self.eval()
         with torch.no_grad():
-            x = torch.arange(xmin, xmax, step)
+            x = torch.arange(xmin, xmax, step).to(self.device)
             y = self(x)
             ref_y = objective_func(x)
         
-            x = x.detach().numpy()
-            y = y.detach().numpy()
-            ref_y = ref_y.detach().numpy()
+            x = x.cpu().detach().numpy()
+            y = y.cpu().detach().numpy()
+            ref_y = ref_y.cpu().detach().numpy()
 
         ref, = plt.plot(x, ref_y, label="ref", color="blue")
         eval, = plt.plot(x, y, label="train", color="orange")
@@ -235,16 +235,17 @@ class PolynomialInterpolation(torch.nn.Module):
         # print("Intervals: ", self.intervals)
 
     # TODO: why commented?
-    # def to(self, *args, **kwargs):
-    #     print("base")
-    #     super(PolynomialInterpolation, self).to(*args, **kwargs)
-    #     self.intervals = self.intervals.to(*args, **kwargs)
-    #     self.matrixlt = self.matrixlt.to(*args, **kwargs)
-    #     self.matrixgt = self.matrixgt.to(*args, **kwargs)
+    def to(self, *args, **kwargs):
+        super(PolynomialInterpolation, self).to(*args, **kwargs)
+        self.intervals = self.intervals.to(*args, **kwargs)
+        self.matrixlt = self.matrixlt.to(*args, **kwargs)
+        self.matrixgt = self.matrixgt.to(*args, **kwargs)
+        self.device = self.intervals.device
 
     # TODO: auto update is the key to the traditional training
     # how about we just calculate in real time? time-consuming if not updated?
     def update(self):
+        # call update when fitting
         raise NotImplementedError("""at least update: intervals, bl, br""")
 
     def _init(self):
@@ -280,8 +281,8 @@ class PolynomialInterpolation(torch.nn.Module):
             singular matrix may cause error
         """
         try:
-            Y = self.sample_values.detach().clone()
-            X = self.sample_points.detach().clone()
+            Y = self.sample_values.cpu().detach().clone()
+            X = self.sample_points.cpu().detach().clone()
             V = torch.ones((self.N, self.degree + 1, self.degree + 1), dtype=self.dtype)
             A = torch.zeros((self.N, self.degree + 1), dtype=self.dtype)
             for i in range(self.N):

@@ -9,6 +9,7 @@ import src.registry as registry
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--device", type=str, default="cpu")
     # model
     parser.add_argument("--model", choices=["equidistant", "adaptive"], default="equidistant")
     parser.add_argument("--N", type=int, default=10)
@@ -46,7 +47,8 @@ if __name__ == "__main__":
     logging_dir = os.path.join(args.logging_root, args.exp_name)
     interpolation = registry.interpolator.build_model(name=args.model, degree=args.degree, N=args.N, 
                                                       bl=args.bl, br=args.br, sl=args.sl, sr=args.sr, 
-                                                      min_val=args.min_val, max_val=args.max_val, logging_dir=logging_dir)
+                                                      min_val=args.min_val, max_val=args.max_val, 
+                                                      logging_dir=logging_dir, device=args.device)
     print(interpolation)
     for n, p in interpolation.named_parameters():
         print(n, p, p.grad)
