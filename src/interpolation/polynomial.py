@@ -13,8 +13,9 @@ class PolynomialInterpolation(torch.nn.Module):
     - property: sample_num
     - property: sample_points, equally initialized
     - property: sample_values, linearly initialized, y = x
-    - method: forward
+    - method: forward_values
     - method: update
+    - method: (optional) prepare_to_fit
     - or reset any according to need
     - to.(device) for non-nn.Parameter: intervals, bl, br
     """
@@ -34,6 +35,8 @@ class PolynomialInterpolation(torch.nn.Module):
     interpolate: Callable # interpolation function
     matrixlt: torch.Tensor # used for masking transform, N + 1 x N
     matrixgt: torch.Tensor # used for masking transform, N + 1 x N
+
+    objective_func: Callable # objective function for fitting
     def __init__(self, N=10, degree=1, bl=-10., br=10., sl=0., sr=0., 
                  device="cpu", dtype=torch.float32, min_val=None, max_val=None, logging_dir="./"):
         super(PolynomialInterpolation, self).__init__()
@@ -86,12 +89,11 @@ class PolynomialInterpolation(torch.nn.Module):
         os.makedirs(self._logging_dir, exist_ok=True)
         return self._logging_dir
 
-    # TODO:
-    # def forward(self. input):
-    #     output = self.forward_values(input)
-    #     return self.post_process(output)
-
     def forward(self, input):
+        output = self.forward_values(input)
+        return self.post_process(output)
+
+    def forward_values(self, input):
         """use polynomial to calculate output
         call self.export_func() first to export coefficients
 
@@ -161,8 +163,14 @@ class PolynomialInterpolation(torch.nn.Module):
         maskother = masklt * maskgt
         return maskbl, maskbr, maskother
 
+    def prepare_to_fit(self):
+        """
+        init necessary parameters respective to objective function
+        """
+
     def fit(self, objective_func, generator, optimizer_class, criterion_class, epoch=10000, batch=128, lr=None, xmin=-10, xmax=10, step=0.001):
-        # TODO: just train like neural network, no need to wrap up. pass the instance of optimizer...
+        self.objective_func = objective_func
+        self.prepare_to_fit()
 
         lr = ((self.br - self.bl) / self.N * 0.001) if lr is None else lr
         print("Learning rate: ", lr)

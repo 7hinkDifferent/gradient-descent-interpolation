@@ -9,9 +9,10 @@ import src.registry as registry
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--device", type=str, default="cpu") # TODO: currently not supported cuda training
     # model
-    parser.add_argument("--model", choices=["equidistant", "adaptive"], default="equidistant")
+    parser.add_argument("--model", choices=["equidistant", "equidistant_tuned_values",
+                                             "adaptive", "adaptive_tuned_values"], default="equidistant")
     parser.add_argument("--N", type=int, default=10)
     parser.add_argument("--degree", type=int, default=2)
     parser.add_argument("--bl", type=float, default=-10)
@@ -32,7 +33,6 @@ def parse_args():
     parser.add_argument("--xmin", type=float, default=-10)
     parser.add_argument("--xmax", type=float, default=10)
     parser.add_argument("--step", type=float, default=0.001)
-    # parser.add_argument("--device", type=str, default="cpu") # TODO: use cpu only
     # logging
     parser.add_argument("--exp_name", type=str, default="exp")
     parser.add_argument("--logging_root", type=str, default="./logs")
@@ -49,6 +49,8 @@ if __name__ == "__main__":
                                                       bl=args.bl, br=args.br, sl=args.sl, sr=args.sr, 
                                                       min_val=args.min_val, max_val=args.max_val, 
                                                       logging_dir=logging_dir, device=args.device)
+    interpolation.to(args.device)
+    # interpolation.set_freeze(['bl', 'br'])
     print(interpolation)
     for n, p in interpolation.named_parameters():
         print(n, p, p.grad)

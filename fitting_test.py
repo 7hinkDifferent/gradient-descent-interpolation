@@ -40,8 +40,7 @@ def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.0
             "max_relative_error": 0,
         },
         "intervals": model.intervals,
-        "params": dict().fromkeys([name for name, _ in model.named_parameters()],
-                                  [param for _, param in model.named_parameters()]),
+        "params": {name: param for name, param in model.named_parameters()},
     }
 
     logging_dir = os.path.join(logging_dir, "fitting")
@@ -86,7 +85,8 @@ def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.0
 
     # logging
     with open(os.path.join(logging_dir, "metric.txt"), "w") as f:
-        f.write(str(logging_dict))
+        for key, value in logging_dict.items():
+            f.writelines(f"{key}: {value}\n")
 
     # plotting
     plt.title("fitting curve")
@@ -111,7 +111,8 @@ def parse_args():
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", type=str, default="cpu")
     # model
-    parser.add_argument("--model", choices=["equidistant", "adaptive"], default="equidistant")
+    parser.add_argument("--model", choices=["equidistant", "equidistant_tuned_values",
+                                             "adaptive", "adaptive_tuned_values"], default="equidistant")
     parser.add_argument("--path", type=str, default="./logs/exp/model.pth")
     parser.add_argument("--N", type=int, default=10)
     parser.add_argument("--degree", type=int, default=2)
@@ -141,7 +142,7 @@ if __name__ == "__main__":
     interpolation = registry.interpolator.from_pretrained(name=args.model, path=args.path, degree=args.degree, N=args.N, 
                                                       bl=args.bl, br=args.br, sl=args.sl, sr=args.sr, 
                                                       min_val=args.min_val, max_val=args.max_val, 
-                                                      logging_dir=logging_dir, device=args.device)
+                                                      logging_dir=logging_dir, device=args.device, freeze=True)
     interpolation.to(args.device)
     objective_func = registry.objective_function.build_func(args.objective_func)
     test_fitting(interpolation, objective_func=objective_func, logging_dir=logging_dir, 

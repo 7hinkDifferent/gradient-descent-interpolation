@@ -1,6 +1,8 @@
 # project
 test/dataset/
 logs/
+test/
+tmp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

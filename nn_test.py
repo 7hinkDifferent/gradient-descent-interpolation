@@ -162,7 +162,8 @@ def arg_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42)
     # model
-    parser.add_argument("--activation", choices=["relu", "sigmoid", "tanh", "equidistant", "adaptive"], default="sigmoid")
+    parser.add_argument("--activation", choices=["relu", "sigmoid", "tanh", 
+                                                 "equidistant", "equidistant_tuned_values", "adaptive", "adaptive_tuned_values"], default="sigmoid")
     parser.add_argument("--path", type=str, default="./logs/exp/model.pth")
     parser.add_argument("--N", type=int, default=10)
     parser.add_argument("--degree", type=int, default=2)
