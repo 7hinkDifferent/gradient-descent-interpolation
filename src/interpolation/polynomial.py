@@ -140,7 +140,6 @@ class PolynomialInterpolation(torch.nn.Module):
         else: self.has_exported = False
 
     def get_name(self):
-        # TODO: what for?
         return """{}_N_{}_degree_{}""".format(self._get_name(), self.N, self.degree)
 
     def extra_repr(self) -> str:
@@ -181,8 +180,7 @@ class PolynomialInterpolation(torch.nn.Module):
         lr = ((self.br - self.bl) / self.N * 0.001) if lr is None else lr
         print("Learning rate: ", lr)
 
-        # TODO: need a learning rate scheduler?
-        # TODO: other training configurations
+        # you may adpative a more sophisticated training strategy
 
         self.train()
         optimizer = optimizer_class(self.parameters(), lr=lr)
@@ -260,7 +258,6 @@ class PolynomialInterpolation(torch.nn.Module):
         #     print(name, param)
         # print("Intervals: ", self.intervals)
 
-    # TODO: why commented?
     def to(self, *args, **kwargs):
         super(PolynomialInterpolation, self).to(*args, **kwargs)
         self.intervals = self.intervals.to(*args, **kwargs)
@@ -268,8 +265,6 @@ class PolynomialInterpolation(torch.nn.Module):
         self.matrixgt = self.matrixgt.to(*args, **kwargs)
         self.device = self.intervals.device
 
-    # TODO: auto update is the key to the traditional training
-    # how about we just calculate in real time? time-consuming if not updated?
     def update(self):
         # call update when fitting
         raise NotImplementedError("""at least update: intervals, bl, br""")

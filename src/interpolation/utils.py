@@ -2,7 +2,7 @@
 interpolate value given existing data points
 '''
 
-# TODO: need a more efficient implementation
+# TODO: a more efficient implementation
 class LagrangePolynomialInterpolation(object):
     def __call__(self, x, x_values, y_values):
         try:
