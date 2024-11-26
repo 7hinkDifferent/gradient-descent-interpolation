@@ -1,7 +1,25 @@
-## todo
-5. fix AttributeError: module 'scipy.integrate' has no attribute 'simps'. Did you mean: 'simpson'?
+table of contents
 
-[toc]
+- [motivation](#motivation)
+- [method](#method)
+  - [equidistant](#equidistant)
+  - [equidistant\_tuned\_values](#equidistant_tuned_values)
+  - [adaptive](#adaptive)
+  - [adaptive\_tuned\_values](#adaptive_tuned_values)
+  - [note](#note)
+- [usage](#usage)
+  - [0. setup](#0-setup)
+  - [1. fit a objective function](#1-fit-a-objective-function)
+  - [2. test fitting results](#2-test-fitting-results)
+  - [3. paired with neural networks](#3-paired-with-neural-networks)
+- [troubleshooting](#troubleshooting)
+  - [ill-posed problem](#ill-posed-problem)
+  - [training with cuda](#training-with-cuda)
+  - [loading interpolation to cuda](#loading-interpolation-to-cuda)
+  - [gif generation may take a long time](#gif-generation-may-take-a-long-time)
+  - [torch.linspace has no gradients](#torchlinspace-has-no-gradients)
+- [directories](#directories)
+- [reference](#reference)
 
 ## motivation
 
