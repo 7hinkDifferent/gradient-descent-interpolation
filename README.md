@@ -137,7 +137,7 @@ we may draw some simple conclusions from the above demo
 
 ## usage
 
-0. setup
+### 0. setup
 
 install necessary packages by
 
@@ -145,7 +145,7 @@ install necessary packages by
 pip install -r requirements.txt
 ```
 
-1. fit a objective function
+### 1. fit a objective function
 
 quick start to launch a fitting by:
 
@@ -205,7 +205,7 @@ python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --
 ![](./assets/freeze.gif)
 
 
-1.2 how to add arbitrary functions
+1.2 how to add arbitrary objective functions
 
 check out examples in `src/activations/activation_factory.py`. just define a function to return a Callable and decorate with `@objective_function.register("some_name")`.
 
@@ -223,22 +223,68 @@ python main.py --model equidistant --objective_func sine --xmin -12 --xmax 12
 
 ![](./assets/sine.gif)
 
-2. test fitting results
+you can further define criterions, optimizers... in the `main.py`.
 
-`Sigmoid` would be fair
+### 2. test fitting results
 
-3. pair with neural networks
+test the fitting performance **after the above training**. runing the following command will load trained interpolation model to eval:
+
+```bash
+python fitting_test.py --model equidistant --objective_func relu --xmin -12 --xmax 12
+```
+
+results will be saved at
+- test/exp/fitting
+  - abs_error.png # absolute error distribution
+  - fitting.png # final interpolation result
+  - relative_error.png # relative error distribution
+  - metric.txt # metrics and trained parameters
+
+metrics includes:
+- abs_error_acc: absolute error accumulation
+- abs_error_avg: absolute error average
+- max_abs_error: maximum absolute error, (x, y, y_ref, abs_error)
+- relative_error_acc: relative error accumulation
+- relative_error_avg: relative error average
+- max_relative_error: maximum relative error, (x, y, y_ref, relative_error)
+- model_time: time used by interpolation
+- ref_time: time used by objective function
+
+we do a simple test on these four models (1000 epochs to fit). `Sigmoid` as `objective_func` would be fair.
+
+|method|equidistant|equidistant_tuned_values|adaptive|adaptive_tuned_values|
+|:-:|:-:|:-:|:-:|:-:|
+|abs_error_acc|0.01441|0.01606|0.02225|**0.01307**|
+|abs_error_avg|0.00060|0.00067|0.00093|**0.00054**|
+|max_abs_error|0.00520|0.00432|0.00444|**0.00291**|
+|relative_error_acc|**3.46086**|7.35128|3.63681|24.72856|
+|relative_error_avg|**0.14420**|0.30630|0.15153|1.030357|
+|max_relative_error|5.21991|**4.29128**|5.22027|48.33312|
+|model_time|0.00735|0.00625|0.00656|0.00687|
+
+note: relative error would be large, since `Sigmoid` is close to zero for negative input.
+
+
+equidistant:
+
+![](./assets/equidistant_concatenated_image.png)
+
+equidistant_tuned_values:
+
+![](./assets/equidistant_tuned_values_concatenated_image.png)
+
+adaptive:
+
+![](./assets/adaptive_concatenated_image.png)
+
+adaptive_tuned_values:
+
+![](./assets/adaptive_tuned_values_concatenated_image.png)
+
+
+### 3. pair with neural networks
 
 you can load the parameters and write a static function which is a lot faster.
-
-## study, investigation
-may include a simple study on some cases
-
-relative speed
-
-performance on simple cases
-
-error distribution for some activations
 
 ## troubleshooting
 
@@ -271,7 +317,13 @@ python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --
 
 ### training with cuda
 
+it would be nice to check out the optimal activation function for each layer in the model for different tasks.
+
+but training with cuda is currently not supported. errors occur...
+
 ### gif generation may take a long time
+
+indeed sir.
 
 ## directories
 - assets/
