@@ -64,21 +64,14 @@ given objective function (`objective_func`), the number of intervals (`N`) and d
 
 a tricky way to find nearly optimal parameters is neural-network-like optimization. with the problem formulation as below
 
-$$
-
+\[
 min\ loss(y_{ref}, y_{pre}) \\
-
 st. \ y_{ref} = objective\_func(x) \\
-
 y_{pre} = linear_{left}(x) * I_{x\in left} + linear_{right}(x) * I_{x\in right} \sum_i interpolation_i(x) * I_{x\in i} \\
-
 linear_{left}(x) = y_{l} + s_l * (x-b_l) \\
-
 linear_{right}(x) = y_{r} + s_r * (x-b_r) \\
-
 interpolation_i (x)=\sum_j y_j\frac{\prod_{k\ne j}(x-x_k)}{\prod_{k\ne j}(x_j - x_k)}
-
-$$
+\]
 
 we can derive gradients using backpropagation to update parameters just like training a nerual network!
 
