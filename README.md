@@ -1,6 +1,5 @@
 ## todo
 5. fix AttributeError: module 'scipy.integrate' has no attribute 'simps'. Did you mean: 'simpson'?
-6. fix zero division error
 
 [toc]
 

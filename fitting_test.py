@@ -16,6 +16,8 @@ import src
 import src.registry as registry
 from src.seed import seed_everything
 
+epsilon = 1e-8
+
 def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.001, device="cpu"):
     """test metric
     - abs error accumulate
@@ -76,14 +78,14 @@ def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.0
     # error
     abs_error = abs(y - ref_y)
     abs_error_max_idx = np.argmax(abs_error)
-    relative_error = abs((y - ref_y) / ref_y)
+    relative_error = abs((y - ref_y) / (ref_y + epsilon))
     relative_error_max_idx = np.argmax(relative_error)
 
     # metric - integrate
     logging_dict["metric"]["abs_error_acc"] = scipy.integrate.simps(abs(y - ref_y), dx=step)
     logging_dict["metric"]["abs_error_avg"] = logging_dict["metric"]["abs_error_acc"] / (xmax - xmin)
     logging_dict["metric"]["max_abs_error"] = x[abs_error_max_idx], y[abs_error_max_idx], ref_y[abs_error_max_idx], abs_error[abs_error_max_idx]
-    logging_dict["metric"]["relative_error_acc"] = scipy.integrate.simps(abs((y - ref_y) / ref_y), dx=step)
+    logging_dict["metric"]["relative_error_acc"] = scipy.integrate.simps(abs((y - ref_y) / (ref_y + epsilon)), dx=step)
     logging_dict["metric"]["relative_error_avg"] = logging_dict["metric"]["relative_error_acc"] / (xmax - xmin)
     logging_dict["metric"]["max_relative_error"] = x[relative_error_max_idx], y[relative_error_max_idx], ref_y[relative_error_max_idx], relative_error[relative_error_max_idx]
     logging_dict["metric"]["model_time"] = model_time
