@@ -203,8 +203,8 @@ class PolynomialInterpolation(torch.nn.Module):
             self.distribution = torch.cat((self.distribution, data), 0)
             if i % 10 == 0 or i == epoch - 1:
                 text = plt.text(0.5, 1.03, i, horizontalalignment="center", verticalalignment="center", transform=ax.transAxes)
-                ref, eval = self.test(objective_func, xmin, xmax, step)
-                images.append([ref, eval, text])
+                results = self.test(objective_func, xmin, xmax, step)
+                images.append([*results, text])
 
             self.update()
 
@@ -231,9 +231,21 @@ class PolynomialInterpolation(torch.nn.Module):
             y = y.cpu().detach().numpy()
             ref_y = ref_y.cpu().detach().numpy()
 
+            # plot intervals and inner points
+            intervals = self.intervals
+            pivot = self(intervals)
+            intervals = intervals.cpu().detach().numpy()
+            pivot = pivot.cpu().detach().numpy()
+
+            sample_points = self.sample_points.cpu().detach().numpy()
+            sample_values = self.sample_values.cpu().detach().numpy()
+
+
         ref, = plt.plot(x, ref_y, label="ref", color="blue")
         eval, = plt.plot(x, y, label="train", color="orange")
-        return ref, eval
+        intervals, = plt.plot(intervals, pivot, "o", label="intervals", color="red")
+        sample, = plt.plot(sample_points, sample_values, "x", label="samples", color="green")
+        return ref, eval, intervals, sample
         # return title + ref + eval + legend
         # plt.savefig(os.path.join(self.logging_dir, "activation.png"))
         # plt.clf()
