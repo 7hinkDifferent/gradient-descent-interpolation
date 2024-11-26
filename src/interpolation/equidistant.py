@@ -45,6 +45,7 @@ class EquidistantIntervalInterpolation(PolynomialInterpolation):
     def to(self, *args, **kwargs):
         super(EquidistantIntervalInterpolation, self).to(*args, **kwargs)
         self.sample_points = self.sample_points.to(*args, **kwargs)
+        return self
 
     def update(self):
         device = self.bl.device

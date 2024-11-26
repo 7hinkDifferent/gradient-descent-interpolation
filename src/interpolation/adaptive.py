@@ -48,6 +48,7 @@ class AdaptiveIntervalInterpolation(PolynomialInterpolation):
         self.sample_points_buffer = self.sample_points_buffer.to(*args, **kwargs)
         self.bl = self.bl.to(*args, **kwargs)
         self.br = self.br.to(*args, **kwargs)
+        return self
 
     def update(self):
         # update sample points

@@ -41,7 +41,10 @@ class PolynomialInterpolation(torch.nn.Module):
 
     distribution: torch.Tensor # input distribution for logging
     has_exported: bool # whether coefficients have been exported. need to set_freeze(False) if resume training
+    
     # state saving
+    # Important: special care for saving non-parameter attributes
+    # Important: special care for to.(device) non-parameter attributes
     to_save = set(["N", "degree", "intervals", "sample_num", "sample_points", "sample_values", 
                 "bl", "br", "sl", "sr", "min_val", "max_val", "interpolate",
                 "matrixlt", "matrixgt", "objective_func", "distribution", "has_exported"])
@@ -263,7 +266,9 @@ class PolynomialInterpolation(torch.nn.Module):
         self.intervals = self.intervals.to(*args, **kwargs)
         self.matrixlt = self.matrixlt.to(*args, **kwargs)
         self.matrixgt = self.matrixgt.to(*args, **kwargs)
+        if self.has_exported: self.coefficients = self.coefficients.to(*args, **kwargs)
         self.device = self.intervals.device
+        return self
 
     def update(self):
         # call update when fitting
@@ -284,10 +289,12 @@ class PolynomialInterpolation(torch.nn.Module):
     def load_state_dict(self, state_dict: Mapping[str, Any], *args, **kwargs):
         # Important: update non-parameters, continue training may have error initial state
         # Update: we save all necessary parameters in state_dict
+        # Warning: non-parameters should be set to device
         for key, value in state_dict["_extra_info"].items():
             setattr(self, key, value)
         del state_dict["_extra_info"]
         super(PolynomialInterpolation, self).load_state_dict(state_dict=state_dict, *args, **kwargs)
+        self.to(self.device)
 
     def export_func(self):
         """calculate parameters of polynomials interpolation for fast compute

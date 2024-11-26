@@ -1,6 +1,6 @@
 ## todo
-3. detailed manuscript with highlight
-4. walkthrough
+5. fix AttributeError: module 'scipy.integrate' has no attribute 'simps'. Did you mean: 'simpson'?
+6. fix zero division error
 
 [toc]
 
@@ -91,7 +91,7 @@ we may draw some **simple conclusions** from the above demo
 
 ### 0. setup
 
-install necessary packages by
+install necessary packages by:
 
 ```bash
 pip install -r requirements.txt
@@ -277,7 +277,15 @@ python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --
 
 it would be nice to check out the optimal activation function for each layer in the model for different tasks.
 
-but training with cuda is currently not supported. errors occur...
+but training with cuda is currently not supported. errors occur... maybe ok now?!
+
+need to specify device when instantiate, model.to(device) will not load interpolation!
+
+### loading interpolation to cuda
+
+device management can be improved...
+
+if integrated with common neural networks, they will not automatically load interpolation on cuda. need to do it manually!
 
 ### gif generation may take a long time
 
