@@ -51,8 +51,6 @@ if __name__ == "__main__":
     # interpolation.set_freeze(["bl", "br"])
     # interpolation.set_freeze(["sl", "sr"])
     print(interpolation)
-    for n, p in interpolation.named_parameters():
-        print(n, p, p.grad)
     objective_func = registry.objective_function.build(args.objective_func)
     generator = {
         "N": lambda batch: torch.randn((batch)) * args.dist_param[1] + args.dist_param[0],
@@ -75,5 +73,3 @@ if __name__ == "__main__":
     params = interpolation.state_dict()
     torch.save(params, os.path.join(logging_dir, "model.pth"))
     print("model saved: ", os.path.join(logging_dir, "model.pth"))
-    for n, p in interpolation.named_parameters():
-        print(n, p, p.grad)
