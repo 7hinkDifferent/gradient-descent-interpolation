@@ -23,7 +23,7 @@ def parse_args():
     parser.add_argument("--objective_func", choices=["sigmoid", "tanh", "relu"], default="sigmoid")
     parser.add_argument("--dist", choices=["N", "U"], default="N", help="distribution type for data generator")
     parser.add_argument("--dist_param", nargs="+", type=int, default=(0,5), help="(mean, std) for N, (a, b) for U")
-    parser.add_argument("--epoch", type=int, default=5000)
+    parser.add_argument("--epoch", type=int, default=1000)
     parser.add_argument("--batch", type=int, default=128)
     parser.add_argument("--optim", choices=["adam", "sgd"], default="adam")
     parser.add_argument("--lr", type=float, default=None)

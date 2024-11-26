@@ -14,9 +14,34 @@ we can see the powerful fitting ability of gradient descent!
 gif generation may take a long time.
 
 ## motivation
+
 you may theorectically work out the solution for interpolation. however, results may differ and get extremely hard (for me) given different input distributions and criterions. so a simple workaround is using gradient descent to optimize given arbitrary objective function, input distribution, evaluation criterion.
 
+![](./assets/intro.gif)
+
 ## method
+
+given objective function (objective_func), the number of intervals (N) and degree of polynomial (degree), we want to interpolate with polynomials within intervals, and interpolate linearly outside the left / right most boundary (bl, br). so we need to work out the parameters for interpolation points for each interval (sample_points) and the slope for outside linear interpolation (sl, sr).
+
+a tricky way to find nearly optimal parameters is neural-network-like optimization. with the problem formulation as below
+
+$$
+min\ loss(y_{ref}, y_{pre}) \\
+st. \ y_{ref} = objective\_func(x) \\
+y_{pre} = linear_{left}(x) * I_{x\in left} + linear_{right}(x) * I_{x\in right} \sum_i interpolation_i(x) * I_{x\in i} \\
+linear_{left}(x) = y_{l} + s_l * (x-b_l) \\
+linear_{right}(x) = y_{r} + s_r * (x-b_r) \\
+interpolation_i (x)=\sum_j y_j\frac{\prod_{k\ne j}(x-x_k)}{\prod_{k\ne j}(x_j - x_k)}
+$$
+
+we can derive gradients using backpropagation to update parameters just like training a nerual network!
+
+to this end, we have four methods to implement: whether sample points are equally distributed and whether sample values are derive from objective function or learned.
+
+
+red and green dot
+
+a more stable choice. somehow is the same...
 
 """
 四种方法：
@@ -62,6 +87,8 @@ Experiment
 
 ## usage
 
+you can freeze
+
 0. setup
 
 install necessary packages by
@@ -94,7 +121,8 @@ error distribution for some activations
 
 ## troubleshooting
 
-1. ill-posed problem
+### ill-posed problem
+
 when is bumping, try reducing N, since there might be 
 nearly ill-posed
 
@@ -104,14 +132,7 @@ python main.py --model adaptive --objective_func relu --xmin -12 --xmax 12 --epo
 
 ![](./assets/progress_jitter.gif)
 
-simply using equidistant
-```bash
-python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --epoch 1000
-```
-
-![](./assets/progress_equi.gif)
-
-or reduce N to 5 (default is 10)
+simply reduce N to 5 (default is 10) would do the trick
 
 ```bash
 python main.py --model adaptive --objective_func relu --xmin -12 --xmax 12 --epoch 1000 --N 5
@@ -119,9 +140,17 @@ python main.py --model adaptive --objective_func relu --xmin -12 --xmax 12 --epo
 
 ![](./assets/progress_N5.gif)
 
-2. training with cuda
+or using equidistant method
 
-3. 
+```bash
+python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --epoch 1000
+```
+
+![](./assets/progress_equi.gif)
+
+### training with cuda
+
+### 
 
 ## directories
 - assets/
