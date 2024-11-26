@@ -1,16 +1,10 @@
 ## todo
-1. typo: order -> degree
-2. refactor, and traditional nn training paradigm
 3. detailed manuscript
 4. simple report on usage and experiment
-5. eliminate all the # todos
-6. train x and y (init from objective function) together is actually fitting rather than interpolation. but they are somehow the same, so fitting implementation is aborted.
 7. include gifs here
-8. double check boundary slope 0
-9. fix typo: objective_function
-10. device
-11. train with nn and use alone (batch problem)
 12. better logging
+13. add comment and fix typo
+14. clear print
 
 slope! if outside the boundary, we trained the slope
 play with freeze to check the slope
@@ -19,7 +13,10 @@ we can see the powerful fitting ability of gradient descent!
 
 gif generation may take a long time.
 
-when is bumping, try reducing N
+## motivation
+you may theorectically work out the solution for interpolation. however, results may differ and get extremely hard (for me) given different input distributions and criterions. so a simple workaround is using gradient descent to optimize given arbitrary objective function, input distribution, evaluation criterion.
+
+## method
 
 """
 四种方法：
@@ -37,9 +34,6 @@ when is bumping, try reducing N
 torch.linspace 没有梯度，要手动去算！
 TODO: clamp_(min, max) need for forward?
 """
-
-## motivation
-you may theorectically work out the solution for interpolation. however, results may differ and get extremely hard (for me) given different input distributions and criterions. so a simple workaround is using gradient descent to optimize given arbitrary objective function, input distribution, evaluation criterion.
 
 Sigmoid函数拟合
 - 分段函数：一次、二次、三次
@@ -65,6 +59,30 @@ Experiment
 - 进阶
   - 简单的图像分类任务速度、性能
 
+
+## usage
+
+0. setup
+
+install necessary packages by
+
+```bash
+pip install -r requirements.txt
+```
+
+1. fit a objective function
+
+how to add arbitrary functions
+
+
+2. test fitting results
+
+
+
+3. pair with neural networks
+
+you can load the parameters and write a static function which is a lot faster.
+
 ## study, investigation
 may include a simple study on some cases
 
@@ -73,6 +91,49 @@ relative speed
 performance on simple cases
 
 error distribution for some activations
+
+## troubleshooting
+
+1. ill-posed problem
+when is bumping, try reducing N, since there might be 
+nearly ill-posed
+
+```bash
+python main.py --model adaptive --objective_func relu --xmin -12 --xmax 12 --epoch 1000
+```
+
+![](./assets/progress_jitter.gif)
+
+simply using equidistant
+```bash
+python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --epoch 1000
+```
+
+![](./assets/progress_equi.gif)
+
+or reduce N to 5 (default is 10)
+
+```bash
+python main.py --model adaptive --objective_func relu --xmin -12 --xmax 12 --epoch 1000 --N 5
+```
+
+![](./assets/progress_N5.gif)
+
+2. training with cuda
+
+3. 
+
+## directories
+- assets/
+- src/
+  - activations/
+  - interpolation/
+  - registry.py
+  - seed.py
+- main.py
+- fitting_test.py
+- nn_test.py
+- requirements.txt
 
 ## reference
 - Piecewice Linear Activation function
