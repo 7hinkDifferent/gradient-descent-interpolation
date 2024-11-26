@@ -9,6 +9,7 @@ import torchvision
 import numpy as np
 import random
 import src.registry as registry
+from src.seed import seed_everything
 import os
 import time
 from tqdm import tqdm
@@ -146,17 +147,6 @@ def cifar10_test(model, logging_dir, dataset_dir, optimizer_class, criterion_cla
 
     file.close()
     writer.close()
-
-def seed_everything(seed: int = 42):
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    for i in range(torch.cuda.device_count()):
-        torch.cuda.set_device(i)
-        torch.cuda.manual_seed(seed + i)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = True
 
 def arg_parse():
     parser = argparse.ArgumentParser()

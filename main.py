@@ -50,7 +50,7 @@ if __name__ == "__main__":
                                                       min_val=args.min_val, max_val=args.max_val, 
                                                       logging_dir=logging_dir, device=args.device)
     interpolation.to(args.device)
-    # interpolation.set_freeze(['bl', 'br'])
+    # interpolation.set_freeze(["bl", "br"])
     print(interpolation)
     for n, p in interpolation.named_parameters():
         print(n, p, p.grad)

@@ -17,7 +17,7 @@ class Interpolator(object):
     def from_pretrained(self, name, path="", freeze=False, *args, **kwargs):
         try:
             model = self.build(name, *args, **kwargs)
-            params = torch.load(path, map_location=torch.device('cpu'))
+            params = torch.load(path, map_location=torch.device("cpu"))
             model.load_state_dict(params)
             print("model weights loaded")
             # TODO: should freeze anyway...
