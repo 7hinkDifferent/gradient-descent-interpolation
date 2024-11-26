@@ -9,14 +9,14 @@ class Interpolator(object):
             return model_class
         return wrapper
 
-    def build_model(self, name, *args, **kwargs):
+    def build(self, name, *args, **kwargs):
         if name not in self.model_dict:
             raise ValueError("model {} not found".format(name))
         return self.model_dict[name](*args, **kwargs)
     
     def from_pretrained(self, name, path="", freeze=False, *args, **kwargs):
         try:
-            model = self.build_model(name, *args, **kwargs)
+            model = self.build(name, *args, **kwargs)
             params = torch.load(path, map_location=torch.device('cpu'))
             model.load_state_dict(params)
             print("model weights loaded")
@@ -25,7 +25,7 @@ class Interpolator(object):
         except FileNotFoundError:
             print("model weights not found")
             print("building new model")
-            model = self.build_model(name, *args, **kwargs)
+            model = self.build(name, *args, **kwargs)
         model.set_freeze(freeze=freeze)
         return model
 
@@ -38,7 +38,7 @@ class ObjectiveFunction(object):
             return model_class
         return wrapper
 
-    def build_func(self, name, *args, **kwargs):
+    def build(self, name, *args, **kwargs):
         if name not in self.func_dict:
             raise ValueError("func {} not found".format(name))
         return self.func_dict[name](*args, **kwargs)

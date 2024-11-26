@@ -17,7 +17,7 @@ import argparse
 
 def get_activation_fn(activation: str, *args, **kwargs):
     try:
-        return registry.objective_function.build_func(activation, *args, **kwargs)
+        return registry.objective_function.build(activation, *args, **kwargs)
     except ValueError:
         try:
             return registry.interpolator.from_pretrained(activation, *args, **kwargs)

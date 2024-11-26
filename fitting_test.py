@@ -144,6 +144,6 @@ if __name__ == "__main__":
                                                       min_val=args.min_val, max_val=args.max_val, 
                                                       logging_dir=logging_dir, device=args.device, freeze=True)
     interpolation.to(args.device)
-    objective_func = registry.objective_function.build_func(args.objective_func)
+    objective_func = registry.objective_function.build(args.objective_func)
     test_fitting(interpolation, objective_func=objective_func, logging_dir=logging_dir, 
                  xmin=args.xmin, xmax=args.xmax, step=args.step, device=args.device)

@@ -45,16 +45,16 @@ if __name__ == "__main__":
     args = parse_args()
     seed_everything(args.seed)
     logging_dir = os.path.join(args.logging_root, args.exp_name)
-    interpolation = registry.interpolator.build_model(name=args.model, degree=args.degree, N=args.N, 
+    interpolation = registry.interpolator.build(name=args.model, degree=args.degree, N=args.N, 
                                                       bl=args.bl, br=args.br, sl=args.sl, sr=args.sr, 
                                                       min_val=args.min_val, max_val=args.max_val, 
                                                       logging_dir=logging_dir, device=args.device)
     interpolation.to(args.device)
-    # interpolation.set_freeze(['bl', 'br'])
+    interpolation.set_freeze(['bl', 'br'])
     print(interpolation)
     for n, p in interpolation.named_parameters():
         print(n, p, p.grad)
-    objective_func = registry.objective_function.build_func(args.objective_func)
+    objective_func = registry.objective_function.build(args.objective_func)
     generator = {
         "N": lambda batch: torch.randn((batch)) * args.dist_param[1] + args.dist_param[0],
         "U": lambda batch: torch.rand((batch)) * (args.dist_param[1] - args.dist_param[0]) + args.dist_param[0],

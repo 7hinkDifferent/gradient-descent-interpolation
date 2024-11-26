@@ -19,6 +19,8 @@ we can see the powerful fitting ability of gradient descent!
 
 gif generation may take a long time.
 
+when is bumping, try reducing N
+
 """
 四种方法：
 1. 等距插值 RatioInterval {'epoch': 9999, 'loss': 3.3225504125766747e-07}
