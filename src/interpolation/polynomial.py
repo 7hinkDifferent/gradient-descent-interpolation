@@ -275,9 +275,6 @@ class PolynomialInterpolation(torch.nn.Module):
         # call update when fitting
         raise NotImplementedError("""at least update: intervals, bl, br""")
 
-    def _init(self):
-        raise NotImplementedError("""at least init: intervals, bl, br""")
-
     def state_dict(self, *args, **kwargs):
         state = super(PolynomialInterpolation, self).state_dict(*args, **kwargs)
         state["_extra_info"] = OrderedDict()

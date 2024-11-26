@@ -56,13 +56,6 @@ class EquidistantIntervalInterpolation(PolynomialInterpolation):
 
         self.prepare_to_fit()
 
-    def _init(self):
-        device = self.bl.device
-        # init sample points
-        self.sample_points = torch.linspace(self.bl.detach(), self.br.detach(), self.sample_num, dtype=self.dtype, device=device)
-        # init intervals
-        for i in range(self.N + 1):
-            self.intervals[i] = self.sample_points[i * self.degree].detach()
 
 
 @interpolator.register("equidistant_tuned_values")
@@ -111,12 +104,5 @@ class EquidistantTunedValuesIntervalInterpolation(PolynomialInterpolation):
         # update sample points
         self.sample_points = torch.linspace(self.bl.detach(), self.br.detach(), self.sample_num, dtype=self.dtype)
         # update intervals
-        for i in range(self.N + 1):
-            self.intervals[i] = self.sample_points[i * self.degree].detach()
-
-    def _init(self):
-        # init sample points
-        self.sample_points = torch.linspace(self.bl.detach(), self.br.detach(), self.sample_num, dtype=self.dtype)
-        # init intervals
         for i in range(self.N + 1):
             self.intervals[i] = self.sample_points[i * self.degree].detach()

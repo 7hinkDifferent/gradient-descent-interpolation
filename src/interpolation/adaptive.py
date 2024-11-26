@@ -68,12 +68,6 @@ class AdaptiveIntervalInterpolation(PolynomialInterpolation):
 
         self.prepare_to_fit()
 
-    def _init(self):
-        # init buffer
-        self.sample_points_buffer = self.sample_points.detach().clone()
-        # init intervals
-        for i in range(self.N + 1):
-            self.intervals[i] = self.sample_points[i * self.degree].detach()
 
 @interpolator.register("adaptive_tuned_values")
 class AdaptiveTunedValuesIntervalInterpolation(PolynomialInterpolation):
@@ -133,12 +127,5 @@ class AdaptiveTunedValuesIntervalInterpolation(PolynomialInterpolation):
         # update buffer
         self.sample_points_buffer = self.sample_points.detach().clone()
         # update intervals
-        for i in range(self.N + 1):
-            self.intervals[i] = self.sample_points[i * self.degree].detach()
-
-    def _init(self):
-        # init buffer
-        self.sample_points_buffer = self.sample_points.detach().clone()
-        # init intervals
         for i in range(self.N + 1):
             self.intervals[i] = self.sample_points[i * self.degree].detach()
