@@ -101,11 +101,11 @@ class PolynomialInterpolation(torch.nn.Module):
         call self.export_func() first to export coefficients
 
         self.coefficients: N x degree + 1
-        input: shape
+        input: B x ...
 
         so far 3x faster
         """
-        # TODO: do we need to handle non-batch input?
+        # batch input is easily handled by tensor operation
         shape = input.shape
 
         # calculate polynomial interpolation
@@ -136,7 +136,7 @@ class PolynomialInterpolation(torch.nn.Module):
             print(name, end=", ")
         print()
         # if freeze all params, we can have fast compute
-        if param is None and freeze: self.export_func()
+        if params is None and freeze: self.export_func()
         else: self.has_exported = False
 
     def get_name(self):
@@ -286,14 +286,13 @@ class PolynomialInterpolation(torch.nn.Module):
                 print("saving {} failed".format(key))
         return state
 
-    def load_state_dict(self, state_dict: Mapping[str, Any],
-                        strict: bool = True, assign: bool = False):
+    def load_state_dict(self, state_dict: Mapping[str, Any], *args, **kwargs):
         # Important: update non-parameters, continue training may have error initial state
         # Update: we save all necessary parameters in state_dict
         for key, value in state_dict["_extra_info"].items():
             setattr(self, key, value)
         del state_dict["_extra_info"]
-        super(PolynomialInterpolation, self).load_state_dict(state_dict=state_dict, strict=strict, assign=assign)
+        super(PolynomialInterpolation, self).load_state_dict(state_dict=state_dict, *args, **kwargs)
 
     def export_func(self):
         """calculate parameters of polynomials interpolation for fast compute

@@ -20,13 +20,12 @@ class Interpolator(object):
             params = torch.load(path, map_location=torch.device("cpu"))
             model.load_state_dict(params)
             print("model weights loaded")
-            # TODO: should freeze anyway...
-            if freeze: model.export_func()
         except FileNotFoundError:
             print("model weights not found")
             print("building new model")
             model = self.build(name, *args, **kwargs)
         model.set_freeze(freeze=freeze)
+        
         return model
 
 class ObjectiveFunction(object):
