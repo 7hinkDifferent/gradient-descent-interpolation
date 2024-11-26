@@ -15,7 +15,6 @@ class AdaptiveIntervalInterpolation(PolynomialInterpolation):
         self.sample_points_buffer = self.sample_points.detach().clone()
         self.bl = self.sample_points[0] # same memory address
         self.br = self.sample_points[-1] # same memory address
-        # TODO: why this is trainable???
         self.sample_values = torch.linspace(bl, br, self.sample_num, dtype=self.dtype).sigmoid() # sigmoid for faster convergence
 
     def prepare_to_fit(self):
@@ -82,7 +81,6 @@ class AdaptiveTunedValuesIntervalInterpolation(PolynomialInterpolation):
         self.sample_points_buffer = self.sample_points.detach().clone()
         self.bl = self.sample_points[0] # same memory address
         self.br = self.sample_points[-1] # same memory address
-        # TODO: why this is trainable???
         self.sample_values = torch.nn.Parameter(torch.linspace(bl, br, self.sample_num, dtype=self.dtype).sigmoid()) # sigmoid for faster convergence
 
     def forward_values(self, input):

@@ -39,6 +39,8 @@ class PolynomialInterpolation(torch.nn.Module):
 
     objective_func: Callable # objective function for fitting
 
+    distribution: torch.Tensor # input distribution for logging
+    has_exported: bool # whether coefficients have been exported. need to set_freeze(False) if resume training
     # state saving
     to_save = set(["N", "degree", "intervals", "sample_num", "sample_points", "sample_values", 
                 "bl", "br", "sl", "sr", "min_val", "max_val", "interpolate",
@@ -78,18 +80,12 @@ class PolynomialInterpolation(torch.nn.Module):
         self.matrixgt = torch.cat((torch.zeros(1, self.N), torch.eye(self.N)), 0).to(device=device, dtype=dtype) # N + 1 x N
         
         # check for fast compute
-        # TODO: fixed and freeze if retrain?
         self.has_exported = False
 
         # logging
         self._logging_dir = logging_dir
         # used for logging data distribution
-        # TODO: need to clean up or cache when resume training
         self.distribution = torch.tensor([], device=device, dtype=dtype)
-
-        # TODO: need a common parameter for all models? torch.nn.Paramter for trainable parameters. tensor for non-trainable parameters
-        # TODO: based on above, we can figure out a way to export funciton
-        # TODO: handle the properties... too messy
 
     @property
     def logging_dir(self):
@@ -139,6 +135,9 @@ class PolynomialInterpolation(torch.nn.Module):
             param.requires_grad = not freeze
             print(name, end=", ")
         print()
+        # if freeze all params, we can have fast compute
+        if param is None and freeze: self.export_func()
+        else: self.has_exported = False
 
     def get_name(self):
         # TODO: what for?
@@ -296,9 +295,6 @@ class PolynomialInterpolation(torch.nn.Module):
         del state_dict["_extra_info"]
         super(PolynomialInterpolation, self).load_state_dict(state_dict=state_dict, strict=strict, assign=assign)
 
-    def export_params(self, filename):
-        raise NotImplementedError
-
     def export_func(self):
         """calculate parameters of polynomials interpolation for fast compute
         method:
@@ -334,6 +330,6 @@ class PolynomialInterpolation(torch.nn.Module):
                 A[i, :] = torch.matmul(torch.inverse(V[i]), yp)
             self.coefficients = A.to(self.device)
             self.has_exported = True
-            print("model polynomial function exported")
+            print("model polynomial function exported. fast compute is ready!")
         except torch._C._LinAlgError:
             print("singular matrix, could not export coefficients. please check sample points")

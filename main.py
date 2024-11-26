@@ -1,5 +1,3 @@
-# TODO: unified fit and test script
-
 import argparse, os
 from src.seed import seed_everything
 import torch

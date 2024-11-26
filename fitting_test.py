@@ -80,7 +80,6 @@ def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.0
     relative_error_max_idx = np.argmax(relative_error)
 
     # metric - integrate
-    # TODO: dont use sample points
     logging_dict["metric"]["abs_error_acc"] = scipy.integrate.simps(abs(y - ref_y), dx=step)
     logging_dict["metric"]["abs_error_avg"] = logging_dict["metric"]["abs_error_acc"] / (xmax - xmin)
     logging_dict["metric"]["max_abs_error"] = x[abs_error_max_idx], y[abs_error_max_idx], ref_y[abs_error_max_idx], abs_error[abs_error_max_idx]

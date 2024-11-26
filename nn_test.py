@@ -167,8 +167,8 @@ def arg_parse():
     parser.add_argument("--freeze", action="store_true", default=False)
     # image-test
     parser.add_argument("--image-test", action="store_true", default=False)
-    parser.add_argument("--dataset", choices=["cifar10"], default="cifar10") # TODO: add more dataset
-    parser.add_argument("--model", choices=["vgg11", "resnet18"], default="resnet18") # TODO: add more model
+    parser.add_argument("--dataset", choices=["cifar10"], default="cifar10")
+    parser.add_argument("--model", choices=["vgg11", "resnet18"], default="resnet18")
     parser.add_argument("--epoch", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--optim", choices=["adam", "sgd"], default="adam")

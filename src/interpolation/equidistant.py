@@ -68,7 +68,6 @@ class EquidistantTunedValuesIntervalInterpolation(PolynomialInterpolation):
         self.br = torch.nn.Parameter(torch.tensor(br, dtype=self.dtype))
         self.sample_num = 1 + N * degree
         self.sample_points = torch.linspace(bl, br, self.sample_num, dtype=self.dtype, device=device)
-        # TODO: why this is trainable???
         self.sample_values = torch.nn.Parameter(torch.linspace(bl, br, self.sample_num, dtype=self.dtype).sigmoid()) # sigmoid for faster convergence
 
     def forward_values(self, input):
