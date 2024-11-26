@@ -1,18 +1,19 @@
 import torch
 import os
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Union, Mapping, Any
 from src.interpolation.utils import LagrangePolynomialInterpolation
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.animation import ArtistAnimation
+from collections import OrderedDict
 
 class PolynomialInterpolation(torch.nn.Module):
     """Base class for all polynomial interpolation models
     Inherited classes should implement:
     - property: sample_num
     - property: sample_points, equally initialized
-    - property: sample_values, linearly initialized, y = x
+    - property: sample_values, linearly initialized?, y = x
     - method: forward_values
     - method: update
     - method: (optional) prepare_to_fit
@@ -23,10 +24,10 @@ class PolynomialInterpolation(torch.nn.Module):
     degree: int # degree of polynomial
     intervals: torch.Tensor # used for masking, update, detach from sample_points
     sample_num: int # number of sample points
-    sample_points: torch.nn.Parameter # used for interpolation, trainable
-    sample_values: torch.nn.Parameter # used for interpolation, trainable
-    bl: torch.Tensor # left boundary for interpolation, update from sample_points
-    br: torch.Tensor # right boundary for interpolation, update from sample_points
+    sample_points: Union[torch.Tensor, torch.nn.Parameter] # used for interpolation
+    sample_values: Union[torch.Tensor, torch.nn.Parameter] # used for interpolation
+    bl: Union[torch.Tensor, torch.nn.Parameter] # left boundary for interpolation, update from sample_points
+    br: Union[torch.Tensor, torch.nn.Parameter] # right boundary for interpolation, update from sample_points
     sl: torch.nn.Parameter # slope outside left boundary for interpolation, trainable
     sr: torch.nn.Parameter # slope outside right boundary for interpolation, trainable
     min_val: float = None # minimum value of output
@@ -37,6 +38,11 @@ class PolynomialInterpolation(torch.nn.Module):
     matrixgt: torch.Tensor # used for masking transform, N + 1 x N
 
     objective_func: Callable # objective function for fitting
+
+    # state saving
+    to_save = set(["N", "degree", "intervals", "sample_num", "sample_points", "sample_values", 
+                "bl", "br", "sl", "sr", "min_val", "max_val", "interpolate",
+                "matrixlt", "matrixgt", "objective_func", "distribution", "has_exported"])
     def __init__(self, N=10, degree=1, bl=-10., br=10., sl=0., sr=0., 
                  device="cpu", dtype=torch.float32, min_val=None, max_val=None, logging_dir="./"):
         super(PolynomialInterpolation, self).__init__()
@@ -83,6 +89,7 @@ class PolynomialInterpolation(torch.nn.Module):
 
         # TODO: need a common parameter for all models? torch.nn.Paramter for trainable parameters. tensor for non-trainable parameters
         # TODO: based on above, we can figure out a way to export funciton
+        # TODO: handle the properties... too messy
 
     @property
     def logging_dir(self):
@@ -271,9 +278,26 @@ class PolynomialInterpolation(torch.nn.Module):
     def _init(self):
         raise NotImplementedError("""at least init: intervals, bl, br""")
 
-    def load_state_dict(self, *args, **kwargs):
-        super(PolynomialInterpolation, self).load_state_dict(*args, **kwargs)
-        self._init() # Important: update non-parameters, continue training may have error initial state
+    def state_dict(self, *args, **kwargs):
+        state = super(PolynomialInterpolation, self).state_dict(*args, **kwargs)
+        state["_extra_info"] = OrderedDict()
+        for key in self.to_save:
+            try:
+                # extra info
+                if key not in state: 
+                    state["_extra_info"][key] = getattr(self, key)
+            except AttributeError:
+                print("saving {} failed".format(key))
+        return state
+
+    def load_state_dict(self, state_dict: Mapping[str, Any],
+                        strict: bool = True, assign: bool = False):
+        # Important: update non-parameters, continue training may have error initial state
+        # Update: we save all necessary parameters in state_dict
+        for key, value in state_dict["_extra_info"].items():
+            setattr(self, key, value)
+        del state_dict["_extra_info"]
+        super(PolynomialInterpolation, self).load_state_dict(state_dict=state_dict, strict=strict, assign=assign)
 
     def export_params(self, filename):
         raise NotImplementedError

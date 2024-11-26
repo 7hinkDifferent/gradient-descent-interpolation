@@ -64,6 +64,15 @@ def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.0
         y = y.detach().cpu().numpy()
         ref_y = ref_y.detach().cpu().numpy()
 
+        # plot intervals and inner points
+        intervals = model.intervals
+        pivot = model(intervals)
+        intervals = intervals.cpu().detach().numpy()
+        pivot = pivot.cpu().detach().numpy()
+
+        sample_points = model.sample_points.cpu().detach().numpy()
+        sample_values = model.sample_values.cpu().detach().numpy()
+
     # error
     abs_error = abs(y - ref_y)
     abs_error_max_idx = np.argmax(abs_error)
@@ -92,6 +101,8 @@ def test_fitting(model, objective_func, logging_dir, xmin=-10, xmax=10, step=0.0
     plt.title("fitting curve")
     plt.plot(x, ref_y, label="ref")
     plt.plot(x, y, label="train")
+    plt.plot(intervals, pivot, "o", label="intervals", color="red")
+    plt.plot(sample_points, sample_values, "x", label="samples", color="green")
     plt.legend()
     plt.savefig(os.path.join(logging_dir, "fitting.png"))
     plt.clf()
