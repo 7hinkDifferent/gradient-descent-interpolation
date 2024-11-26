@@ -12,3 +12,7 @@ def tanh(*args, **kwargs):
 @objective_function.register("relu")
 def relu(*args, **kwargs):
     return torch.nn.ReLU()
+
+@objective_function.register("sin")
+def sin(*args, **kwargs):
+    return torch.sin

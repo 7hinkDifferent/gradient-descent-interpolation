@@ -9,40 +9,6 @@
 slope! if outside the boundary, we trained the slope
 play with freeze to check the slope
 
-we can see the powerful fitting ability of gradient descent!
-
-gif generation may take a long time.
-
-## motivation
-
-you may theorectically work out the solution for interpolation. however, results may differ and get extremely hard (for me) given different input distributions and criterions. so a simple workaround is using gradient descent to optimize given arbitrary objective function, input distribution, evaluation criterion.
-
-![](./assets/intro.gif)
-
-## method
-
-given objective function (objective_func), the number of intervals (N) and degree of polynomial (degree), we want to interpolate with polynomials within intervals, and interpolate linearly outside the left / right most boundary (bl, br). so we need to work out the parameters for interpolation points for each interval (sample_points) and the slope for outside linear interpolation (sl, sr).
-
-a tricky way to find nearly optimal parameters is neural-network-like optimization. with the problem formulation as below
-
-$$
-min\ loss(y_{ref}, y_{pre}) \\
-st. \ y_{ref} = objective\_func(x) \\
-y_{pre} = linear_{left}(x) * I_{x\in left} + linear_{right}(x) * I_{x\in right} \sum_i interpolation_i(x) * I_{x\in i} \\
-linear_{left}(x) = y_{l} + s_l * (x-b_l) \\
-linear_{right}(x) = y_{r} + s_r * (x-b_r) \\
-interpolation_i (x)=\sum_j y_j\frac{\prod_{k\ne j}(x-x_k)}{\prod_{k\ne j}(x_j - x_k)}
-$$
-
-we can derive gradients using backpropagation to update parameters just like training a nerual network!
-
-to this end, we have four methods to implement: whether sample points are equally distributed and whether sample values are derive from objective function or learned.
-
-
-red and green dot
-
-a more stable choice. somehow is the same...
-
 """
 四种方法：
 1. 等距插值 RatioInterval {'epoch': 9999, 'loss': 3.3225504125766747e-07}
@@ -84,6 +50,91 @@ Experiment
 - 进阶
   - 简单的图像分类任务速度、性能
 
+## motivation
+
+you may theorectically work out the solution for interpolation. however, results may differ and get extremely hard (for me) given different input distributions and criterions. so a simple workaround is using gradient descent to optimize given arbitrary objective function, input distribution, evaluation criterion.
+
+we can see the powerful fitting ability with gradient descent!
+
+![](./assets/equidistant_tuned_values.gif)
+
+## method
+
+given objective function (`objective_func`), the number of intervals (`N`) and degree of polynomial (`degree`), we want to interpolate with polynomials within intervals, and interpolate linearly outside the left / right most boundary (`bl`, `br`). so we need to work out the parameters for interpolation points for each interval (`sample_points`) and the slope for outside linear interpolation (`sl`, `sr`).
+
+a tricky way to find nearly optimal parameters is neural-network-like optimization. with the problem formulation as below
+
+$$
+
+min\ loss(y_{ref}, y_{pre}) \\
+
+st. \ y_{ref} = objective\_func(x) \\
+
+y_{pre} = linear_{left}(x) * I_{x\in left} + linear_{right}(x) * I_{x\in right} \sum_i interpolation_i(x) * I_{x\in i} \\
+
+linear_{left}(x) = y_{l} + s_l * (x-b_l) \\
+
+linear_{right}(x) = y_{r} + s_r * (x-b_r) \\
+
+interpolation_i (x)=\sum_j y_j\frac{\prod_{k\ne j}(x-x_k)}{\prod_{k\ne j}(x_j - x_k)}
+
+$$
+
+we can derive gradients using backpropagation to update parameters just like training a nerual network!
+
+to this end, we have four methods to implement: whether sample points are equally distributed and whether sample values are derive from objective function or learned.
+
+### equidistant
+
+`sample_points` are equally distributed and `intervals` are of the same length. `sample_values`, the corresponding values of `sample_points`, are calculated with the `objective_func`. 
+
+so in this setting, we only need to optimize: 1) left / right boundary `bl` / `br` which control the `sample_points` distribution between them. 2) left / right slope `sl` / `sr` for outside linear interpolation.
+
+![](./assets/equidistant.gif)
+
+### equidistant_tuned_values
+
+`sample_points` are equally distributed and `intervals` are of the same length. `sample_values`, however, are learned with the initial values from `Sigmoid`. 
+
+so in this setting, we only need to optimize: 1) left / right boundary `bl` / `br` which control the `sample_points` distribution between them. 2) `sample_values` for `sample_points`. 3) left / right slope `sl` / `sr` for outside linear interpolation.
+
+![](./assets/equidistant_tuned_values.gif)
+
+### adaptive
+
+`sample_points` are NOT equally distributed and `intervals` are NOT of the same length. `sample_values` are calculated with the `objective_func`. 
+
+so in this setting, we only need to optimize: 1) `sample_points` for interval interpolation. 2) left / right slope `sl` / `sr` for outside linear interpolation.
+
+for implementation, `sample_points` would sometimes cross each other, leading to instability of learning. so `sample_points_buffer` is proposed to restrict step size of single point. ie. `sample_points_buffer[i-1]` <= `sample_points[i]` <= `sample_points_buffer[i+1]`
+
+![](./assets/adaptive.gif)
+
+### adaptive_tuned_values
+
+`sample_points` are NOT equally distributed and `intervals` are NOT of the same length. `sample_values`, are learned with the initial values from `Sigmoid`. 
+
+so in this setting, we only need to optimize: 1) `sample_points` for interval interpolation. 2) `sample_values` for `sample_points`. 3) left / right slope `sl` / `sr` for outside linear interpolation.
+
+![](./assets/adaptive_tuned_values.gif)
+
+### note
+
+blue line is the `objective_func`. orange line in the interpolation. red dots stand for `intervals` and green dots stand for `sample_points`. we can summarize the differences between these methods:
+
+|method|equidistant|equidistant_tuned_values|adaptive|adaptive_tuned_values|
+|:-:|:-:|:-:|:-:|:-:|
+|`bl` / `br`|learnable|-|learnable|-|
+|`sample_points`|x|learnable|x|learnable|
+|`sample_values`|x|learnable|x|learnable|
+|`sl` / `sr`|learnable|learnable|learnable|learnable|
+
+we may draw some simple conclusions from the above demo
+1. `*_tuned_values` models perform poorly if not properly initialized
+2. `adaptive*` models can sometimes jitter, tiny distance between `sample_points` cause the ill-posed problem!
+3. `adaptive_tuned_values` should be the most powerful model. however, it would be the most challenging to learn if not properly configured. `equidistant` would always deliver stable and relatively good performance, recommended to try first!
+4. `*_tuned_values` models are proposed not just to interpolate, but to fit the `objective_func`. but in theory, they are somehow the same with non-`*_tuned_values` models the if given more `sample_points`.
+
 
 ## usage
 
@@ -104,7 +155,7 @@ how to add arbitrary functions
 
 2. test fitting results
 
-
+`Sigmoid` would be fair
 
 3. pair with neural networks
 
@@ -150,7 +201,7 @@ python main.py --model equidistant --objective_func relu --xmin -12 --xmax 12 --
 
 ### training with cuda
 
-### 
+### gif generation may take a long time
 
 ## directories
 - assets/
