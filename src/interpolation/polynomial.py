@@ -153,7 +153,7 @@ class PolynomialInterpolation(torch.nn.Module):
         use mask to select the interval
         '''
 
-        maskbl = input <= self.intervals[0] # mask for left boundary
+        maskbl = input < self.intervals[0] # mask for left boundary
         maskbr = input >= self.intervals[-1] # mask for right boundary
 
         # mask for inside boundaries
